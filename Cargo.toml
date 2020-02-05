@@ -1,0 +1,9 @@
+[package]
+name = "onthego-extractor"
+version = "0.1.0"
+authors = ["Balmath <Balmath@users.noreply.github.com>"]
+
+[[bin]]
+name = "onthego-extractor"
+path = "src/main.rs"
+
