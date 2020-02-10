@@ -8,11 +8,9 @@ pub struct Article {
 }
 
 impl Article {
-    pub fn get_path(&self) -> String {
+    pub fn get_path(&self) -> PathBuf {
         let slug_title = slugify!(&self.title, separator = "_");
 
-        let path: PathBuf = [&self.language, &self.category, &slug_title].iter().collect();
-
-        String::from(path.to_string_lossy())
+        [&self.language, &self.category, &slug_title].iter().collect()
     }
 }
