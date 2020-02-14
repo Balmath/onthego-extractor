@@ -9,8 +9,3 @@ mongodb = "0.9.0"
 bson = "0.14.0"
 serde = "1.0.104"
 slugify = "0.1.0"
-
-[[bin]]
-name = "onthego-extractor"
-path = "src/main.rs"
-

@@ -1,18 +1,19 @@
-mod infrastructure;
-mod model;
+use std::env;
+use std::process;
 
-use crate::infrastructure::{JsonArticleRepository, MongodbArticleRepository};
-use crate::model::ArticleRepository;
-use std::path::Path;
+use onthego_extractor::Config;
 
 fn main() {
-    let uri = "mongodb://localhost:27017";
-    let mongodb_repository = MongodbArticleRepository::with_uri_str(uri);
-    let root_path = Path::new("~/onthego-extractor/build");
-    let json_repository = JsonArticleRepository::from_path(root_path);
+    let args: Vec<String> = env::args().collect();
 
-    for article in mongodb_repository.get_all() {
-        json_repository.save(&article);
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("{}", err);
+        process::exit(1);
+    });
+
+    if let Err(err) = onthego_extractor::run(config) {
+        println!("Execution error: {}", err);
+        process::exit(1);
     }
 }
 
