@@ -38,3 +38,20 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn config_new_should_return_correctly_initialized_output_dir() {
+        let args = [
+            String::from("onthego-exporter"),
+            String::from("my_output_dir"),
+        ];
+
+        let config = Config::new(&args).unwrap();
+
+        assert_eq!(args[1], config.output_dir);
+    }
+}

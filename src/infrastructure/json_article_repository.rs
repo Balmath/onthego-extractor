@@ -9,6 +9,14 @@ struct JsonArticle {
     title: String,
 }
 
+impl JsonArticle {
+    pub fn from_article(article: &Article) -> JsonArticle {
+        JsonArticle {
+            title: String::from(&article.title)
+        }
+    }
+}
+
 pub struct JsonArticleRepository {
     root_path: PathBuf,
 }
@@ -27,7 +35,14 @@ impl JsonArticleRepository {
 
         println!("Create {}", article_path.to_string_lossy());
         
-        fs::create_dir_all(article_path.parent().unwrap())
+        fs::create_dir_all(article_path.parent().unwrap())?;
+
+        let json_article = JsonArticle::from_article(article);
+        let json = serde_json::to_string(&json_article).unwrap();
+
+        println!("{}", json);
+
+        Ok(())
     }
 }
 
