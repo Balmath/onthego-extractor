@@ -40,7 +40,7 @@ impl JsonArticleRepository {
         let json_article = JsonArticle::from_article(article);
         let json = serde_json::to_string(&json_article).unwrap();
 
-        println!("{}", json);
+        fs::write(article_path, json)?;
 
         Ok(())
     }
