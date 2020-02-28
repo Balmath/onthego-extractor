@@ -1,7 +1,9 @@
-use bson::{from_bson, Document, Bson, DecoderError};
+use bson::{from_bson, Document, Bson, DecoderError, UtcDateTime};
+use chrono::{DateTime, Utc};
 use crate::model::{Article, ArticleRepository};
 use mongodb::{Client, Collection};
 use serde::Deserialize;
+use std::convert::TryFrom;
 
 #[derive(Deserialize, Debug)]
 struct BsonArticle {
@@ -9,12 +11,36 @@ struct BsonArticle {
     pub id: bson::oid::ObjectId,
     pub language: String,
     pub category: String,
-    pub title: String
+    pub title: String,
+    pub author: String,
+    pub date: UtcDateTime,
+    pub sub_category: Option<String>,
+    pub summary_image: String,
+    pub summary_text: String,
+    pub content: String,
+    pub tags: Vec<String>,
 }
 
-impl BsonArticle {
-    fn from_document(document: Document) -> Result<BsonArticle, DecoderError> {
-        return from_bson(Bson::Document(document));
+impl TryFrom<Document> for BsonArticle {
+    type Error = DecoderError;
+
+    fn try_from(document: Document) -> Result<Self, Self::Error> {
+        from_bson(Bson::Document(document))
+    }
+}
+
+impl From<BsonArticle> for Article {
+    fn from(bson_article: BsonArticle) -> Self {
+        Article {
+            language: bson_article.language,
+            category: bson_article.category,
+            sub_category: bson_article.sub_category,
+            title: bson_article.title,
+            author: bson_article.author,
+            date: DateTime::<Utc>::from(bson_article.date),
+            content: bson_article.content,
+            tags: bson_article.tags,
+        }
     }
 }
 
@@ -43,15 +69,9 @@ impl ArticleRepository for MongodbArticleRepository {
         for document_result in collection.find(None, None).unwrap() {
             let document = document_result.unwrap();
 
-            let bson_article = BsonArticle::from_document(document).unwrap();
+            let bson_article = BsonArticle::try_from(document).unwrap();
 
-            let article = Article {
-                language: bson_article.language,
-                category: bson_article.category,
-                title: bson_article.title,
-            };
-
-            articles.push(article);
+            articles.push(bson_article.into());
         }
 
         return articles;

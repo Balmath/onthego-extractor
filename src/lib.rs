@@ -11,12 +11,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 2 {
-            return Err("Usage: onthego-exporter output_dir");
-        }
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        args.next();
 
-        let output_dir = args[1].clone();
+        let output_dir = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Usage: onthego-exporter output_dir"),
+        };
 
         Ok(Config { output_dir })
     }
@@ -30,7 +31,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let json_repository = JsonArticleRepository::from_path(root_path);
 
     for article in mongodb_repository.get_all() {
-        match json_repository.save(&article) {
+        match json_repository.save(article) {
             Ok(()) => println!(" [Saved]"),
             Err(error) => println!(" [Error: {}]", error)
         }

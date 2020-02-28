@@ -1,4 +1,5 @@
 use crate::model::{Article, ArticleRepository};
+use chrono::{DateTime, Utc};
 use serde::{Serialize, Deserialize};
 use std::fs;
 use std::io;
@@ -7,12 +8,20 @@ use std::path::{Path, PathBuf};
 #[derive(Serialize, Deserialize, Debug)]
 struct JsonArticle {
     title: String,
+    author: String,
+    date: DateTime<Utc>,
+    content: String,
+    tags: Vec<String>,
 }
 
-impl JsonArticle {
-    pub fn from_article(article: &Article) -> JsonArticle {
+impl From<Article> for JsonArticle {
+    fn from(article: Article) -> Self {
         JsonArticle {
-            title: String::from(&article.title)
+            title: article.title,
+            author: article.author,
+            date: article.date,
+            content: article.content,
+            tags: article.tags,
         }
     }
 }
@@ -28,7 +37,7 @@ impl JsonArticleRepository {
         }
     }
 
-    pub fn save(&self, article: &Article) -> io::Result<()> {
+    pub fn save(&self, article: Article) -> io::Result<()> {
         let mut article_path = self.root_path.clone();
         article_path.push(article.get_path());
         article_path.set_extension("json");
@@ -37,7 +46,7 @@ impl JsonArticleRepository {
         
         fs::create_dir_all(article_path.parent().unwrap())?;
 
-        let json_article = JsonArticle::from_article(article);
+        let json_article = JsonArticle::from(article);
         let json = serde_json::to_string(&json_article).unwrap();
 
         fs::write(article_path, json)?;
