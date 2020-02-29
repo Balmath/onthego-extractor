@@ -31,6 +31,12 @@ impl TryFrom<Document> for BsonArticle {
 
 impl From<BsonArticle> for Article {
     fn from(bson_article: BsonArticle) -> Self {
+        let article_content = format!(
+            "<img src=\"/static/images/{}\">\n<p>\n<strong>{}</strong>\n</p>\n<br>\n{}",
+            bson_article.summary_image,
+            bson_article.summary_text,
+            bson_article.content);
+
         Article {
             language: bson_article.language,
             category: bson_article.category,
@@ -38,7 +44,7 @@ impl From<BsonArticle> for Article {
             title: bson_article.title,
             author: bson_article.author,
             date: DateTime::<Utc>::from(bson_article.date),
-            content: bson_article.content,
+            content: article_content,
             tags: bson_article.tags,
         }
     }
