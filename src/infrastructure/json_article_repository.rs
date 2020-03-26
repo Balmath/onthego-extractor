@@ -40,6 +40,7 @@ impl JsonArticleRepository {
     pub fn save(&self, article: Article) -> io::Result<()> {
         let mut article_path = self.root_path.clone();
         article_path.push(article.get_path());
+        article_path.push(article.get_slug());
         article_path.set_extension("json");
 
         println!("Create {}", article_path.to_string_lossy());

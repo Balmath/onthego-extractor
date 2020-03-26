@@ -11,10 +11,13 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
-        args.next();
+    pub fn new<I>(args: I) -> Result<Config, &'static str>
+    where I: IntoIterator<Item=String> {
+        let mut iter = args.into_iter();
 
-        let output_dir = match args.next() {
+        iter.next();
+
+        let output_dir = match iter.next() {
             Some(arg) => arg,
             None => return Err("Usage: onthego-exporter output_dir"),
         };
@@ -46,13 +49,13 @@ mod tests {
 
     #[test]
     fn config_new_should_return_correctly_initialized_output_dir() {
-        let args = [
-            String::from("onthego-exporter"),
-            String::from("my_output_dir"),
+        let args = vec![
+            "onthego-exporter".to_string(),
+            "my_output_dir".to_string(),
         ];
 
-        let config = Config::new(&args).unwrap();
+        let config = Config::new(args).unwrap();
 
-        assert_eq!(args[1], config.output_dir);
+        assert_eq!("my_output_dir".to_string(), config.output_dir);
     }
 }

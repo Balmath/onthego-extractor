@@ -14,6 +14,10 @@ pub struct Article {
 }
 
 impl Article {
+    pub fn get_slug(&self) -> String {
+        slugify!(&self.title, separator = "_")
+    }
+
     pub fn get_path(&self) -> PathBuf {
         let mut path_elements = vec![&self.language, &self.category];
 
@@ -21,8 +25,8 @@ impl Article {
             path_elements.push(&sub_category);
         }
 
-        let slug_title = slugify!(&self.title, separator = "_");
-        path_elements.push(&slug_title);
+        let title_slug = self.get_slug();
+        path_elements.push(&title_slug);
         
         path_elements.iter().collect()
     }
